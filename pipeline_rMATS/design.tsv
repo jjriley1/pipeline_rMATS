@@ -1,0 +1,13 @@
+############################################################################################
+##### design.tsv file must be formatted with no header and starting from first line. 
+############################################################################################
+
+day0	day1	#
+day0	day15	# Comparisons you want to conduct. Based on groups defined in file_naming.tsv
+day2	day6	#
+
+############################################################################################
+# IMPORTANT: THE CHARACTERS USED HERE E.G. "hESC" MUST MATCH EXACTLY (INCLUDING CASE) THOSE
+#	     SPECIFIED IN FILE_NAMING.TSV, ELSE THE REGEX WILL NOT WORK.
+############################################################################################
+
