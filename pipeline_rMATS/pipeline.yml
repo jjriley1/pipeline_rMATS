@@ -1,0 +1,40 @@
+#########################################################################
+#         _            _ _                  ___  ___  ___ _____ _____   #
+#        (_)          | (_)                 |  \/  | / _ \_   _/  ___|  #
+#   _ __  _ _ __   ___| |_ _ __   ___   _ __| .  . |/ /_\ \| | \ `--.   #
+#  | '_ \| | '_ \ / _ \ | | '_ \ / _ \ | '__| |\/| ||  _  || |  `--. \  #
+#  | |_) | | |_) |  __/ | | | | |  __/ | |  | |  | || | | || | /\__/ /  #
+#  | .__/|_| .__/ \___|_|_|_| |_|\___| |_|  \_|  |_/\_| |_/\_/ \____/   #
+#  | |     | |                     ______                               #
+#  |_|     |_|                    |______|                              #
+#                                                                       #
+#########################################################################
+
+
+###############################################################
+# the genome to use (UCSC convention)
+###############################################################
+genome_dir: /shared/sudlab1/General/mirror/genomes/plain
+genome: hg38_noalt.fasta
+
+
+
+###############################################################
+# Location of annotation database
+###############################################################
+annotations:
+    database: /shared/sudlab1/General/annotations/hg38_noalt_ensembl85/csvdb
+
+    # directory with annotation information
+    dir: /shared/sudlab1/General/annotations/hg38_noalt_ensembl85
+
+
+###############################################################
+# rMATS configuration
+###############################################################
+rmats:
+    # Paired mode
+    paired: TRUE
+    # If paired mode is true, make sure the pairing identifier is in the first block before - 
+    # e.g. ID123-Day0-R0.bam, ID123-Day5-R0.bam 
+
