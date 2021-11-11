@@ -155,7 +155,12 @@ def checkpaired():
                         fi
                     done""")
     
-
+@follows(checkpaired, mkdir("prep"))
+@transform("input_in_design/*.bam", regex("(.+)/(.+)-(.+)-R0.star.bam"), output=r"prep/\2-\3-prep.txt")
+def create_prep_files(infile, outfile):
+    to_cluster=False
+    statement = "echo %(infile)s > %(outfile)s"
+    P.run(statement)
 
 ###################
 ##### utility #####
