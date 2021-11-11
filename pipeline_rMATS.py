@@ -114,15 +114,56 @@ PARAMS["project_src"]=os.path.dirname(__file__)
 RnaSeq.PARAMS = PARAMS
 
 
+#############################
+##### create prep files #####
+#############################
+# Only do this for the files included in design.tsv
+
+@follows(mkdir("input_in_design"))
+def filter_in_design_matrix():
+    design_matrix = open("design.tsv")
+    design = csv.reader(design_matrix, delimiter="\t")
+    for row in design:
+        comp1 = row[0]
+        comp2 = row[1]
+        print(comp1)
+        print(comp2)
+        file_naming = open("file_naming.tsv")
+        file_names = csv.reader(file_naming, delimiter="\t")
+        for file_row in file_names:
+            for item in file_row:
+                if comp1 in item: 
+                    comp1_files = item.strip(comp1).strip()
+                    os.system("cp -P input/" + comp1_files + " input_in_design/")
+                if comp2 in item:
+                    comp2_files = item.strip(comp2).strip()
+                    os.system("cp -P input/" + comp2_files + " input_in_design/")
+        file_naming.close()
+    design_matrix.close()
+
+@follows(filter_in_design_matrix)
+def checkpaired():
+    #add param lookup to check if paired analysis is being done
+    paired = PARAMS["rmats_paired"]
+    if paired == True :
+        os.system("""for i in input_in_design/*; do
+                        base=${i%-*}
+                        base=${base%-*}
+                        match=`ls ${base}-* | wc -l`
+                        if [ $match -ne 2 ]; then
+                            rm $i
+                        fi
+                    done""")
+    
+
+
 ###################
 ##### utility #####
 ###################
 
-@follows(downloadQAPAprereqs, build3UTRlib, extract3UTRseq, makeSalmonIndex, 
-        quantifyWithSalmon, quant3UTRusage, analyseDesignMatrix,
-        run_compareQAPA_script)
-def full():
-    pass
+#@follows()
+#def full():
+#    pass
 
 
 ##################
