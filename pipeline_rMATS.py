@@ -162,6 +162,37 @@ def create_prep_files(infile, outfile):
     statement = "echo %(infile)s > %(outfile)s"
     P.run(statement)
 
+@follows(create_prep_files, mkdir("prep/outputs.dir"), mkdir("post"))
+@transform("prep/*.txt", regex("(.+)/(.+)-(.+)-prep.txt"), output=r"prep/outputs.dir/\2-\3-output_temp")
+def run_prep(infile, outfile):
+    job_threads=4
+    job_memory="16G"
+    job_condaenv="rmats-env"
+    gtf_loc=PARAMS["gtf_path"]
+    paired_reads = PARAMS["reads_paired"]
+    read_length = PARAMS["reads_length"]
+    final_outfile = "post/" + os.path.basename(os.path.normpath(outfile)).strip("temp").strip("_")
+
+    if paired_reads == True:
+        statement = """rmats.py --b1 %(infile)s 
+                            --gtf %(gtf_loc)s
+                            -t paired
+                            --readLength %(read_length)s
+                            --nthread %(job_threads)s
+                            --od %(final_outfile)s
+                            --tmp %(outfile)s
+                            --task prep"""
+    if paired_reads == False: 
+         statement = """rmats.py --b1 %(infile)s 
+                            --gtf %(gtf_loc)s
+                            -t single
+                            --readLength %(read_length)s                            
+                            --nthread %(job_threads)s
+                            --od %(final_outfile)s
+                            --tmp %(outfile)s
+                            --task prep"""       
+                        
+    P.run(statement, job_memory=job_memory, job_threads=job_threads, job_condaenv=job_condaenv)
 ###################
 ##### utility #####
 ###################
