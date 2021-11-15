@@ -218,6 +218,14 @@ def create_post_files():
                         done
                         echo $(tr -d '\n' < post/condition1_post.txt) > post/condition1_post.txt 
                         echo $(tr -d '\n' < post/condition2_post.txt) > post/condition2_post.txt""")
+
+@follows(create_post_files, mkdir("post/tmp/"))
+@transform("prep/outputs.dir/*/*.rmats", regex("prep/outputs.dir/(.+)-(.+)-output_temp/(.+).rmats"), output=r"post/tmp/\1-\2_\3.rmats")
+def copy_rmats_prep(infile, outfile):
+    statement="cp %(infile)s %(outfile)s"
+    to_cluster=False
+    P.run(statement)
+
 ###################
 ##### utility #####
 ###################
