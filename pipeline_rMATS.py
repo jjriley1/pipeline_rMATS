@@ -11,9 +11,6 @@ Overview
 Pipeline to detect differential alternative splicing from RNA-sequencing data
 by using the rMATS software (https://github.com/Xinglab/rmats-turbo/blob/v4.1.1). 
 
-Currently set up to run against a fixed event set (3'UTR introns). Although this
-will later be made configurable to allow complete comparison. 
-
 Usage
 =====
 
@@ -193,6 +190,34 @@ def run_prep(infile, outfile):
                             --task prep"""       
                         
     P.run(statement, job_memory=job_memory, job_threads=job_threads, job_condaenv=job_condaenv)
+
+@follows(run_prep)
+def create_post_files():
+    #this works best if it is a paired analysis, but if it is not then this function will
+    #still split the post step into 2 files, selecting every other file from the list 
+    #where this is paired, doing so will split the conditions into each post_file.
+        os.system("""ITER=1
+                        for i in input_in_design/*; do
+                            if [ $((ITER%2)) -ne 0 ]
+                            then
+                                if [ $ITER -eq 1 ]
+                                then 
+                                    echo "$i" >> post/condition1_post.txt      
+                                else 
+                                    echo ",$i" >> post/condition1_post.txt  
+                                fi                        
+                            else 
+                                if [ $ITER -eq 2 ]
+                                then 
+                                    echo "$i" >> post/condition2_post.txt      
+                                else 
+                                    echo ",$i" >> post/condition2_post.txt
+                                fi
+                            fi 
+                            ((ITER++))
+                        done
+                        echo $(tr -d '\n' < post/condition1_post.txt) > post/condition1_post.txt 
+                        echo $(tr -d '\n' < post/condition2_post.txt) > post/condition2_post.txt""")
 ###################
 ##### utility #####
 ###################
