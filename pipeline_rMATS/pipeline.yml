@@ -17,7 +17,8 @@
 genome_dir: /shared/sudlab1/General/mirror/genomes/plain
 genome: hg38_noalt.fasta
 
-
+gtf:
+    path: /shared/sudlab1/utrons/Cell_lines/CCLE/ccle_utrons/export_agg-agg-agg.gtf.gz
 
 ###############################################################
 # Location of annotation database
@@ -28,6 +29,16 @@ annotations:
     # directory with annotation information
     dir: /shared/sudlab1/General/annotations/hg38_noalt_ensembl85
 
+###############################################################
+# Information about reads
+###############################################################
+reads:
+        #are they paired or single, if paired state TRUE, if single state FALSE
+        paired: FALSE
+        #how long are they? Can check with 
+        # samtools view FILE.bam | head -n 1000000 | cut -f 10 | perl -ne 'chomp;print length($_) . "\n"' | sort | uniq -c
+        length: 50
+        
 
 ###############################################################
 # rMATS configuration
@@ -37,4 +48,5 @@ rmats:
     paired: TRUE
     # If paired mode is true, make sure the pairing identifier is in the first block before - 
     # e.g. ID123-Day0-R0.bam, ID123-Day5-R0.bam 
+
 
