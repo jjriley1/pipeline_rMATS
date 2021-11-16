@@ -50,6 +50,10 @@ rmats:
     paired: FALSE
     # If paired mode is true, make sure the pairing identifier is in the first block before - 
     # e.g. ID123-Day0-R0.bam, ID123-Day5-R0.bam
+    # Should RMATS look for novel splice sites?
     detect_novel_ss: FALSE
+    #If TRUE, what should its criteria be on introns?
+    min_intron_length: 50
+    max_intron_length: 2500
 
 
