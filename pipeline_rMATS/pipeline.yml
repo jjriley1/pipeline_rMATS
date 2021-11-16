@@ -18,7 +18,9 @@ genome_dir: /shared/sudlab1/General/mirror/genomes/plain
 genome: hg38_noalt.fasta
 
 gtf:
-    path: /shared/sudlab1/utrons/Cell_lines/CCLE/ccle_utrons/export_agg-agg-agg.gtf.gz
+    path: /shared/sudlab1/utrons/Cell_lines/CCLE/ccle_utrons/agg-agg-agg_unzipped.gtf
+
+star_index: /shared/sudlab1/General/mirror/genomes/STAR/hg38_noalt_junc85_99.dir
 
 ###############################################################
 # Location of annotation database
@@ -45,8 +47,9 @@ reads:
 ###############################################################
 rmats:
     # Paired mode
-    paired: TRUE
+    paired: FALSE
     # If paired mode is true, make sure the pairing identifier is in the first block before - 
-    # e.g. ID123-Day0-R0.bam, ID123-Day5-R0.bam 
+    # e.g. ID123-Day0-R0.bam, ID123-Day5-R0.bam
+    detect_novel_ss: FALSE
 
 
