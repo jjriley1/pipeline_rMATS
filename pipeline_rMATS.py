@@ -39,7 +39,7 @@ In order for pipeline_rMATS to know what comparison to make, 2 important files a
 Input files
 ===========
 
-Files are given as .bam format. Usually following completion of pipeline_utrons. (.fastq files can be
+Files are given as .fastq.gz format. Usually following completion of pipeline_utrons. (.fastq files can be
 used with rMATS however this has not yet been configured). In order to compare against fixed event sets, 
 files from utron_beds (output from pipeline_utrons) will also be needed.
 
@@ -153,7 +153,7 @@ def checkpaired():
                     done""")
     
 @follows(checkpaired, mkdir("prep"))
-@transform("input_in_design/*.bam", regex("(.+)/(.+)-(.+)-R0.star.bam"), output=r"prep/\2-\3-prep.txt")
+@transform("input_in_design/*.fastq.gz", regex("(.+)/(.+)-(.+)-R0.fastq.gz"), output=r"prep/\2-\3-prep.txt")
 def create_prep_files(infile, outfile):
     to_cluster=False
     statement = "echo %(infile)s > %(outfile)s"
@@ -168,25 +168,28 @@ def run_prep(infile, outfile):
     gtf_loc=PARAMS["gtf_path"]
     paired_reads = PARAMS["reads_paired"]
     read_length = PARAMS["reads_length"]
-    final_outfile = "post/" + os.path.basename(os.path.normpath(outfile)).strip("temp").strip("_")
+    final_outfile = "post/"
+    star_index = PARAMS["star_index"]
 
     if paired_reads == True:
-        statement = """rmats.py --b1 %(infile)s 
+        statement = """rmats.py --s1 %(infile)s 
                             --gtf %(gtf_loc)s
                             -t paired
                             --readLength %(read_length)s
                             --nthread %(job_threads)s
                             --od %(final_outfile)s
                             --tmp %(outfile)s
+                            --bi %(star_index)s
                             --task prep"""
     if paired_reads == False: 
-         statement = """rmats.py --b1 %(infile)s 
+         statement = """rmats.py --s1 %(infile)s 
                             --gtf %(gtf_loc)s
                             -t single
                             --readLength %(read_length)s                            
                             --nthread %(job_threads)s
                             --od %(final_outfile)s
                             --tmp %(outfile)s
+                            --bi %(star_index)s
                             --task prep"""       
                         
     P.run(statement, job_memory=job_memory, job_threads=job_threads, job_condaenv=job_condaenv)
@@ -225,6 +228,69 @@ def copy_rmats_prep(infile, outfile):
     statement="cp %(infile)s %(outfile)s"
     to_cluster=False
     P.run(statement)
+
+@follows(copy_rmats_prep)
+@merge(["post/condition1_post.txt", "post/condition2_post.txt"], "post/post_executed.txt")
+def run_post(infiles, outfile):
+    condition1, condition2 = infiles
+    job_threads=4
+    job_memory="32G"
+    job_condaenv="rmats-env"
+    gtf_loc=PARAMS["gtf_path"]
+    paired_reads = PARAMS["reads_paired"]
+    read_length = PARAMS["reads_length"]
+    paired = PARAMS["rmats_paired"]
+
+    if paired_reads == True:
+        if paired == True:
+            statement = """rmats.py --s1 %(condition1)s
+                            --s2 %(condition2)s 
+                            --gtf %(gtf_loc)s
+                            -t paired
+                            --readLength %(read_length)s
+                            --nthread %(job_threads)s
+                            --od post/
+                            --tmp post/tmp/
+                            --paired-stats
+                            --task post &&
+                            echo "complete" >> post/post_executed.txt"""
+        if paired == False:
+            statement = """rmats.py --s1 %(condition1)s
+                            --s2 %(condition2)s 
+                            --gtf %(gtf_loc)s
+                            -t paired
+                            --readLength %(read_length)s
+                            --nthread %(job_threads)s
+                            --od post/
+                            --tmp post/tmp/
+                            --task post &&
+                            echo "complete" >> post/post_executed.txt"""
+    if paired_reads == False: 
+        if paired == True:
+            statement = """rmats.py --s1 %(condition1)s
+                            --s2 %(condition2)s 
+                            --gtf %(gtf_loc)s
+                            -t single
+                            --readLength %(read_length)s
+                            --nthread %(job_threads)s
+                            --od post/
+                            --tmp post/tmp/
+                            --paired-stats
+                            --task post &&
+                            echo "complete" >> post/post_executed.txt"""
+        if paired == False:
+            statement = """rmats.py --s1 %(condition1)s
+                            --s2 %(condition2)s 
+                            --gtf %(gtf_loc)s
+                            -t single
+                            --readLength %(read_length)s
+                            --nthread %(job_threads)s
+                            --od post/
+                            --tmp post/tmp/
+                            --task post &&
+                            echo "complete" >> post/post_executed.txt"""
+
+    P.run(statement, job_condaenv=job_condaenv, job_memory=job_memory, job_threads=job_threads)
 
 ###################
 ##### utility #####
