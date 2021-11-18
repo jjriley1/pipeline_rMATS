@@ -240,6 +240,10 @@ def run_post(infiles, outfile):
     paired_reads = PARAMS["reads_paired"]
     read_length = PARAMS["reads_length"]
     paired = PARAMS["rmats_paired"]
+    novel = PARAMS["rmats_detect_novel_ss"]
+    star_index = PARAMS["star_index"]
+
+    #TO DO , ADD NOVEL SS INTEGRATION
 
     if paired_reads == True:
         if paired == True:
@@ -251,6 +255,7 @@ def run_post(infiles, outfile):
                             --nthread %(job_threads)s
                             --od post/
                             --tmp post/tmp/
+                            --bi %(star_index)s
                             --paired-stats
                             --task post &&
                             echo "complete" >> post/post_executed.txt"""
@@ -263,6 +268,7 @@ def run_post(infiles, outfile):
                             --nthread %(job_threads)s
                             --od post/
                             --tmp post/tmp/
+                            --bi %(star_index)s
                             --task post &&
                             echo "complete" >> post/post_executed.txt"""
     if paired_reads == False: 
@@ -275,6 +281,7 @@ def run_post(infiles, outfile):
                             --nthread %(job_threads)s
                             --od post/
                             --tmp post/tmp/
+                            --bi %(star_index)s
                             --paired-stats
                             --task post &&
                             echo "complete" >> post/post_executed.txt"""
@@ -287,6 +294,7 @@ def run_post(infiles, outfile):
                             --nthread %(job_threads)s
                             --od post/
                             --tmp post/tmp/
+                            --bi %(star_index)s
                             --task post &&
                             echo "complete" >> post/post_executed.txt"""
 
