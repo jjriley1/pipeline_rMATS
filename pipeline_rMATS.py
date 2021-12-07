@@ -217,8 +217,14 @@ def create_post_files():
                             fi 
                             ((ITER++))
                         done
-                        echo $(tr -d '\n' < post/condition1_post.txt) > post/condition1_post.txt 
-                        echo $(tr -d '\n' < post/condition2_post.txt) > post/condition2_post.txt""")
+                        FILE=post/condition1_post.txt
+                        if test -f "$FILE"; then
+                            echo "$FILE already exists."
+                        else
+                            echo $(tr -d '\n' < post/condition1_post.txt) > post/condition1_post.txt 
+                            echo $(tr -d '\n' < post/condition2_post.txt) > post/condition2_post.txt
+                        fi""")
+                        
 
 @follows(create_post_files, mkdir("post/tmp/"))
 @transform("prep/outputs.dir/*/*.rmats", regex("prep/outputs.dir/(.+)-(.+)-output_temp/(.+).rmats"), output=r"post/tmp/\1-\2_\3.rmats")
@@ -293,6 +299,24 @@ def run_post(infiles, outfile):
                             echo "complete" >> post/post_executed.txt"""
 
     P.run(statement, job_condaenv=job_condaenv, job_memory=job_memory, job_threads=job_threads)
+
+@follows(run_post, mkdir("post/outputs"))
+@transform("post/*.MATS.*.txt", regex("(.+)/(.+).MATS.(.+).txt"), output=r"\1/outputs/\2.MATS.\3.txt")
+def copy_outputs(infile, outfile):
+    to_cluster=False
+    statement="cp %(infile)s %(outfile)s"
+    P.run(statement)
+
+@follows(copy_outputs)
+@transform("post/outputs/*.MATS.*.txt", regex("(.+)/(.+)/(.+).MATS.(.+).txt"), output=r"\1/\2/SIG_\3.MATS.\4.txt")
+def filter_significance(infile, outfile):
+    folder_name = os.path.dirname(outfile)
+    current_file = __file__ 
+    pipeline_path = os.path.abspath(current_file)
+    pipeline_directory = os.path.dirname(pipeline_path)
+
+    statement = "Rscript %(pipeline_directory)s/pipeline_rMATS/filter_significance.R %(infile)s %(outfile)s"
+    P.run(statement)
 
 ###################
 ##### utility #####
